@@ -1,0 +1,27 @@
+# login API [POST]
+
+{
+	"username":"username",
+	"password":"password"
+}
+
+#Signup API [POST]
+
+{
+	"username":"s",
+	"password":"s",
+    "emailid":"emailid"
+}
+
+#getUserDetailsAPI [GET]
+
+#sendMessage [POST]
+source in header
+uid:3
+{
+	"destinationUserId":3,
+	"message": "Welcome Khaleesi"
+}
+
+#getAllMessages [GET]
+uid in header

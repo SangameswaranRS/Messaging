@@ -1,0 +1,31 @@
+<div>
+  List of messages that was sent to you!
+  <div *ngFor="let message of messagesJson">
+    -----------------------------------------<br><br>
+    message:{{message.message}}
+    <br>
+    Sender: {{message.sender}}
+    <br>
+    timeInEpoch: {{message.messageTimeEpoch}}
+    <br>
+    sha512Hash: {{message.sha512Hash}}
+    <br>
+    messageId: {{message.messageId}}
+    <br><br>
+  </div>
+  <div>
+    <select [(ngModel)]="selectedDestinationUID" required #select = "ngModel">
+      <option *ngFor="let user of userJson" [value]="user.userId">{{user.userName}}</option>
+    </select>
+    &nbsp;&nbsp;
+    <input required #mes="ngModel" type="text" placeholder="messages" [(ngModel)]="messageEntered">
+    &nbsp;&nbsp;
+    <button [disabled]="mes.invalid || select.invalid " (click)="message()">Send</button>
+  </div>
+  <br>
+  <br>
+  <br>
+  <div>
+    <button (click)="logout()">Logout</button>
+  </div>
+</div>

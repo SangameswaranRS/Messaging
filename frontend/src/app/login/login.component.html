@@ -1,0 +1,13 @@
+<div>
+  Login to continue..<br>
+  <br>
+  <input required type="text" placeholder="username" [(ngModel)]="username" #user = "ngModel" minlength="5">
+  <br>
+  <br>
+  <input required type="password" placeholder="password" [(ngModel)]="password" #pass = "ngModel" minlength="3">
+  <br>
+  <br>
+  <button type="button" [disabled]="user.invalid || pass.invalid" (click)="login()">Login</button>
+  <br><br>
+  New User? <a (click)="signup()">Signup Here</a>
+</div>
