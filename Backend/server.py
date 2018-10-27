@@ -6,6 +6,9 @@ import sys
 import pymysql
 import hashlib
 import time
+from Crypto.Cipher import AES
+import os
+import base64
 
 app =Flask(__name__)
 cors = CORS(app)
@@ -16,6 +19,22 @@ db_host = "localhost"
 db_port = 3306
 db_user = "root"
 db_password = "sanga"
+key = os.urandom(16)
+print('[INFO] Choosing AES Key as: '+ str(key))
+cipher = AES.new(key, AES.MODE_ECB)
+pad = 'abcdghreionterk'
+
+def encryptUserId(userId):
+    userIdPadded = str(userId)+ pad
+    encryptedUserIdInBytes = base64.b64encode(cipher.encrypt(userIdPadded))
+    encryptedUserIdInString = encryptedUserIdInBytes.decode('utf-8')
+    return encryptedUserIdInString
+
+def decryptUserId(encryptedUserId):
+    encryptedUserIdInBytes = encryptedUserId.encode('utf-8')
+    decryptedUserId = cipher.decrypt(base64.b64decode(encryptedUserIdInBytes))
+    decryptedUserIdInString = decryptedUserId.decode('utf-8')
+    return decryptedUserIdInString[0]
 
 @app.route("/test")
 def testRoute():
@@ -67,12 +86,13 @@ def login():
             userData = results[0]
             if userData is not None:
                 userId = userData[0]
+                encryptedUserIdInString = encryptUserId(userId)
                 if passwordGiven == userData[2]:
                     # Password is correct
                     success={
                         "statusCode": 200,
                         "message": "Logged in",
-                        "userId": userId
+                        "userId": encryptedUserIdInString
                     }
                     return make_response(jsonify(success), 200)
                 else:
@@ -102,8 +122,8 @@ def send_message():
         db = pymysql.connect(db_host, db_user, db_password, db_name)
         cursor = db.cursor()
         post_params = json.loads(request.data)
-        userId = request.headers['uid']
-        destinationUserId = post_params["destinationUserId"]
+        userId = decryptUserId(request.headers['uid'])
+        destinationUserId = decryptUserId(post_params["destinationUserId"])
         message = post_params["message"]
         messageHash = hashlib.sha512(message.encode()).hexdigest()
         currentEpoch = int(time.time())
@@ -157,7 +177,7 @@ def get_message():
         db = pymysql.connect(db_host, db_user, db_password, db_name)
         cursor = db.cursor()
         selectUserMessagesQuery = "select * from messages join user on messages.sourceUID = user.userId where destinationUID=%s;"
-        userId = request.headers['uid']
+        userId = decryptUserId(request.headers['uid'])
         if userId is not None:
             cursor.execute(selectUserMessagesQuery, (userId))
             results = cursor.fetchall()
@@ -206,7 +226,7 @@ def get_user_data():
         for i in range(0, len(results)):
             individualTuple = results[i]
             user = {
-                "userId":individualTuple[0],
+                "userId":  encryptUserId(individualTuple[0]),
                 "userName": individualTuple[1]
             }
             users.append(user)

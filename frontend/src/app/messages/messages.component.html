@@ -6,7 +6,7 @@
     <br>
     Sender: {{message.sender}}
     <br>
-    timeInEpoch: {{message.messageTimeEpoch}}
+    timeInEpoch: {{message.messageTimeEpoch * 1000 | date:'yyyy-MM-dd HH:mm:ss Z'}}
     <br>
     sha512Hash: {{message.sha512Hash}}
     <br>
