@@ -22,10 +22,15 @@ db_password = "sanga"
 key = os.urandom(16)
 print('[INFO] Choosing AES Key as: '+ str(key))
 cipher = AES.new(key, AES.MODE_ECB)
-pad = 'abcdghreionterk'
+pad = '{'
 
 def encryptUserId(userId):
-    userIdPadded = str(userId)+ pad
+    if len(str(userId)) %16 ==0:
+        userIdPadded = userId
+    else:
+        userIdPadded = str(userId)
+        for i in range(0,16-len(str(userId))%16):
+            userIdPadded = userIdPadded + pad
     encryptedUserIdInBytes = base64.b64encode(cipher.encrypt(userIdPadded))
     encryptedUserIdInString = encryptedUserIdInBytes.decode('utf-8')
     return encryptedUserIdInString
@@ -34,7 +39,7 @@ def decryptUserId(encryptedUserId):
     encryptedUserIdInBytes = encryptedUserId.encode('utf-8')
     decryptedUserId = cipher.decrypt(base64.b64decode(encryptedUserIdInBytes))
     decryptedUserIdInString = decryptedUserId.decode('utf-8')
-    return decryptedUserIdInString[0]
+    return decryptedUserIdInString.strip('{')
 
 @app.route("/test")
 def testRoute():
